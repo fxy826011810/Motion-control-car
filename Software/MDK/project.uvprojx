@@ -335,7 +335,7 @@
               <MiscControls></MiscControls>
               <Define>STM32F40XX,USE_STDPERIPH_DRIVER</Define>
               <Undefine></Undefine>
-              <IncludePath>..\Program\Core;..\Program\Library\inc;..\Program\System;..\Program\User</IncludePath>
+              <IncludePath>..\Program\Core;..\Program\Library\inc;..\Program\System;..\Program\User;..\Program\Task</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -498,6 +498,13 @@
         </Group>
         <Group>
           <GroupName>Task</GroupName>
+          <Files>
+            <File>
+              <FileName>control.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Program\Task\control.c</FilePath>
+            </File>
+          </Files>
         </Group>
         <Group>
           <GroupName>Driver</GroupName>
@@ -532,6 +539,36 @@
               <FileType>1</FileType>
               <FilePath>..\Program\User\usart.c</FilePath>
             </File>
+            <File>
+              <FileName>common.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Program\User\common.c</FilePath>
+            </File>
+            <File>
+              <FileName>monitor.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Program\User\monitor.c</FilePath>
+            </File>
+            <File>
+              <FileName>debug.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Program\User\debug.c</FilePath>
+            </File>
+            <File>
+              <FileName>pid.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Program\User\pid.c</FilePath>
+            </File>
+            <File>
+              <FileName>can.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Program\User\can.c</FilePath>
+            </File>
+            <File>
+              <FileName>dbus.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Program\User\dbus.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -541,6 +578,16 @@
               <FileName>main.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\Program\User\main.c</FilePath>
+            </File>
+            <File>
+              <FileName>config.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\Program\User\config.h</FilePath>
+            </File>
+            <File>
+              <FileName>main.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\Program\User\main.h</FilePath>
             </File>
           </Files>
         </Group>

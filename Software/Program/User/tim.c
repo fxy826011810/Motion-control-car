@@ -1,6 +1,6 @@
 #include "stm32f4xx.h"
 #include "tim.h"
-
+#include "control.h"
 void Bsp_Tim_Init(void)
 {
 				TIM_TimeBaseInitTypeDef      tim;
@@ -22,7 +22,7 @@ void Bsp_Tim_Init(void)
 				TIM_TimeBaseInit(TIM2, &tim);
 				TIM_Cmd(TIM2, ENABLE);			
 }
-void sysEnable(void)
+void SystemIRQ_Enable(void)
 {
 				TIM_Cmd(TIM6, ENABLE);
 				TIM_ITConfig(TIM6, TIM_IT_Update, ENABLE);
@@ -36,11 +36,12 @@ void TIM6_DAC_IRQHandler(void)//控制任务
 				{
 					TIM_ClearITPendingBit(TIM6, TIM_IT_Update);
 					TIM_ClearFlag(TIM6, TIM_FLAG_Update);
+					controlLoop();
 				}
 }
 
-uint32_t Get_Time_Micros(void)//读取陀螺仪积分时间
-{
-				return TIM2->CNT;
-}
+//uint32_t Get_Time_Micros(void)//读取陀螺仪积分时间
+//{
+//				return TIM2->CNT;
+//}
 

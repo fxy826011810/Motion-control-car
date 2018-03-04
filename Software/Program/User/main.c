@@ -5,15 +5,21 @@
 #include "nvic.h"
 #include "tim.h"
 #include "dma.h"
+#include "main.h"
+
+
+cmd_t cmd={0,&MecArm,&Chassis,&Rec,&Debug};
 
 void system_init(void)
 {
+	Bsp_Pid_Init();
   Bsp_NVIC_Init();
 	Bsp_GPIO_Init();
+	Bsp_Can_Init();
 	Bsp_Tim_Init();
 	Bsp_DMA_Init();
 	Bsp_Usart_Init();
-
+	SystemIRQ_Enable();
 }
 
 

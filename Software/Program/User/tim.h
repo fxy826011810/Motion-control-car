@@ -20,7 +20,7 @@ GPIOA->BSRRH =GPIO_Pin_2;\
 
 void Bsp_Tim_Init(void);
 uint32_t Get_Time_Micros(void);
-void sysEnable(void);
+void SystemIRQ_Enable(void);
 
 
 #endif
