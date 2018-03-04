@@ -9,6 +9,7 @@ System_Monitor_t CanCm2_Monitor;//底盘2接收帧率
 System_Monitor_t CanCm3_Monitor;//底盘3接收帧率
 System_Monitor_t CanCm4_Monitor;//底盘4接收帧率
 System_Monitor_t IMURec_Monitor;
+System_Monitor_t ChassisGyro_Monitor;
 System_Monitor_t DbusRec_Monitor;
 //监视器重启
 void Monitor_Reset(System_Monitor_t *mon)
@@ -27,6 +28,7 @@ void Monitor_Init(void)
 	Monitor_Reset(&CanCm4_Monitor);
 	Monitor_Reset(&IMURec_Monitor);
 	Monitor_Reset(&DbusRec_Monitor);
+	Monitor_Reset(&ChassisGyro_Monitor);
 }
 
 
@@ -52,6 +54,7 @@ void Monitor_Update(void)
 	Monitor_Calc(&CanCm4_Monitor);
 	Monitor_Calc(&IMURec_Monitor);
 	Monitor_Calc(&DbusRec_Monitor);
+	Monitor_Calc(&ChassisGyro_Monitor);
 }
 
 

@@ -26,5 +26,7 @@ extern System_Monitor_t CanCm3_Monitor;//底盘3接收帧率
 extern System_Monitor_t CanCm4_Monitor;//底盘4接收帧率
 
 extern System_Monitor_t IMURec_Monitor;
+extern System_Monitor_t ChassisGyro_Monitor;
+
 extern System_Monitor_t DbusRec_Monitor;
 #endif

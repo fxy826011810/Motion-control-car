@@ -17,18 +17,18 @@
 
 typedef struct
 {
-	motion_t motion;
-	remote_t remote;
+	motion_t motion;		//手势
+	remote_t remote;		//遥控
 }Rec_t;
 
 
 typedef struct
 {
-	uint32_t heart;
-	mecArm_t *mecArm;//机械臂
-	chassis_t *chassis;//底盘
-	Rec_t *rec;
-	debug_t *debug;//调试
+	uint32_t heart;			//心跳
+	mecArm_t *mecArm;		//机械臂
+	chassis_t *chassis;	//底盘
+	Rec_t *rec;					//接收
+	debug_t *debug;			//调试
 }cmd_t;
 
 extern chassis_t Chassis;

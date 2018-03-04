@@ -4,7 +4,7 @@
 #include "dma.h"
 #include <stdio.h>
 #include "main.h"
-
+#include "common.h"
 void Bsp_Usart_Init(void)
 {
 	
@@ -99,8 +99,11 @@ void USART1_IRQHandler(void)//接收遥控器值
 			Len=30-DMA2_Stream2->NDTR;
 			if(Len==18)
 			{
+				__disable_irq();
 				dbus_getdata(&Rec.remote.dbusRec);
+				__enable_irq();
 				Monitor_Set(Rec.remote.mon);
+				
       }
        //重启DMA
        DMA_ClearFlag(DMA2_Stream2, DMA_FLAG_TCIF2 | DMA_FLAG_HTIF2);
@@ -112,8 +115,8 @@ void USART1_IRQHandler(void)//接收遥控器值
 
 typedef struct
 {
-	uint8_t head;
-	uint8_t end;
+	const uint8_t head;
+	const uint8_t end;
 	uint8_t lock;
 	uint8_t tmpLen;
 	uint8_t len;
@@ -124,34 +127,37 @@ FrameRec_t AngleRec={0xAA,0xBB,0,0.0};
 
 void angleRecCalculate(uint16_t temp)
 {
-	__disable_irq();
-				if(temp==AngleRec.head)
-				{
-					AngleRec.lock=1;
-				}
-				if(AngleRec.lock==1)
-				{
-					AngleRec.buf[AngleRec.tmpLen++]=temp;
-				}
-				if(temp==AngleRec.end)
-				{
-					AngleRec.lock=0;
-					AngleRec.len=AngleRec.tmpLen;
-					AngleRec.tmpLen=0;
-					if(AngleRec.buf[0]==AngleRec.head&&AngleRec.buf[7]==AngleRec.end)
-					{
-							int16_t angleint[3];
-							angleint[2]=(AngleRec.buf[1]<<8|AngleRec.buf[2]);
-							angleint[1]=(AngleRec.buf[3]<<8|AngleRec.buf[4]);
-							angleint[0]=(AngleRec.buf[5]<<8|AngleRec.buf[6]);
-						
-							Rec.motion.recAngle[2]=(float)angleint[2]/100;
-							Rec.motion.recAngle[1]=(float)angleint[1]/100;
-							Rec.motion.recAngle[0]=(float)angleint[0]/100;
-							Rec.motion.mon->time++;	
-					}
-				}
-				__enable_irq();
+		__disable_irq();
+		if(temp==AngleRec.head)
+		{
+			AngleRec.lock=1;
+		}
+		if(AngleRec.lock==1)
+		{
+			AngleRec.buf[AngleRec.tmpLen++]=temp;
+		}
+		if(temp==AngleRec.end)
+		{
+			AngleRec.lock=0;
+			AngleRec.len=AngleRec.tmpLen;
+			AngleRec.tmpLen=0;
+			if(AngleRec.buf[0]==AngleRec.head&&AngleRec.buf[7]==AngleRec.end)
+			{
+				int16_t angleint[3];
+				float tempYaw;
+				angleint[2]=(AngleRec.buf[1]<<8|AngleRec.buf[2]);
+				angleint[1]=(AngleRec.buf[3]<<8|AngleRec.buf[4]);
+				angleint[0]=(AngleRec.buf[5]<<8|AngleRec.buf[6]);
+							
+				Rec.motion.recAngle[2]=(float)angleint[2]/100;
+				Rec.motion.recAngle[1]=(float)angleint[1]/100;
+				tempYaw=(float)angleint[0]/100;
+				Rec.motion.yawCalc.in=&tempYaw;
+				Rec.motion.recAngle[0]=YawLineCalculate(&Chassis.gyro.yawCalc);
+				Monitor_Set(Rec.motion.mon);
+			}
+		}
+		__enable_irq();
 }	
 
 

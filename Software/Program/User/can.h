@@ -16,7 +16,7 @@ typedef enum
  CAN_RM3510_5_ID			=0x205,
  CAN_RM3510_6_ID			=0x206,
  CAN_RM3510_7_ID			=0x207,
-
+ CAN_GYRO_ID					=0x40,
 }CAN_ID;
 
 typedef struct{

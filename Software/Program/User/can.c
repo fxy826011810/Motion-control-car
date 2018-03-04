@@ -120,9 +120,41 @@ void gm_senddata(CAN_TypeDef* CANx, int num1, int num2)//云台can发送
 		 CAN_Transmit(CANx, &sendmessage);
  }
  
+static void ArmEncoderProcess(volatile ArmEncoder *v, CanRxMsg * msg)//云台值解算函数
+{ 
+		v->last_raw_value = v->raw_value;
+		v->raw_value = (msg->Data[0]<<8)|msg->Data[1];
+		v->diff = v->raw_value - v->last_raw_value;
+		if(v->diff < -7000)    //两次编码器的反馈值差别太大，表示圈数发生了改变
+		{
+			v->round_cnt++;
+		}
+		else if(v->diff>7000)
+		{
+			v->round_cnt--;
+		}		
 
- 
-void Can2_RecviveData(CanRxMsg * rec)//返回值解算
+		//计算得到连续的编码器输出值
+		v->ecd_value = v->raw_value-v->cnt_bias*8192- v->ecd_bias + v->round_cnt * 8192;
+		//计算得到角度值，范围正负无穷大
+		v->ecd_angle =v->ecd_value*360/8192;
+		v->filter_rate =(msg->Data[2]<<8)|msg->Data[3];		
+}
+
+static void canGyroCalculate(CanRxMsg * rec)
+{
+	int16_t angleint[3];
+	float tempYaw;
+	angleint[2]=(rec->Data[1]<<8|rec->Data[2]);
+	angleint[1]=(rec->Data[3]<<8|rec->Data[4]);
+	angleint[0]=(rec->Data[5]<<8|rec->Data[6]);
+	Chassis.gyro.chassisAngle[2]=(float)angleint[2]/100;
+	Chassis.gyro.chassisAngle[1]=(float)angleint[1]/100;
+	tempYaw=(float)angleint[0]/100;
+	Chassis.gyro.yawCalc.in=&tempYaw;
+	Chassis.gyro.chassisAngle[0]=YawLineCalculate(&Chassis.gyro.yawCalc);
+}
+static void Can2_RecviveData(CanRxMsg * rec)//返回值解算
 {
 	
 			switch (rec->StdId)
@@ -150,10 +182,20 @@ void Can2_RecviveData(CanRxMsg * rec)//返回值解算
 					ArmEncoderProcess(Chassis.moter4.encoder,rec);
 					Monitor_Set(Chassis.moter4.mon);
 				}
-					break;			
+					break;
+//------------------------------------------------------------//				
+				case CAN_GYRO_ID:
+				{
+					if(rec->Data[6]==0xAA&&rec->Data[7]==0xBB)
+					{
+						canGyroCalculate(rec);
+						Monitor_Set(Chassis.gyro.mon);
+					}
+				}
+					break;				
 			}
 }
-void Can1_RecviveData(CanRxMsg * rec)//返回值解算
+static void Can1_RecviveData(CanRxMsg * rec)//返回值解算
 {
 	
 			switch (rec->StdId)
@@ -171,7 +213,16 @@ void Can1_RecviveData(CanRxMsg * rec)//返回值解算
 					Monitor_Set(MecArm.mainArm.mon);
 				}
 					break;
-//------------------------------------------------------------//				
+//------------------------------------------------------------//
+				case CAN_GYRO_ID:
+				{
+					if(rec->Data[6]==0xAA&&rec->Data[7]==0xBB)
+					{
+						canGyroCalculate(rec);
+						Monitor_Set(Chassis.gyro.mon);
+					}
+				}
+					break;
 			}
 }
 
@@ -199,24 +250,5 @@ void CAN1_RX0_IRQHandler(void)//单轴陀螺仪值解算中断
 
 
 
- void ArmEncoderProcess(volatile ArmEncoder *v, CanRxMsg * msg)//云台值解算函数
-{ 
-		v->last_raw_value = v->raw_value;
-		v->raw_value = (msg->Data[0]<<8)|msg->Data[1];
-		v->diff = v->raw_value - v->last_raw_value;
-		if(v->diff < -7000)    //两次编码器的反馈值差别太大，表示圈数发生了改变
-		{
-			v->round_cnt++;
-		}
-		else if(v->diff>7000)
-		{
-			v->round_cnt--;
-		}		
 
-		//计算得到连续的编码器输出值
-		v->ecd_value = v->raw_value-v->cnt_bias*8192- v->ecd_bias + v->round_cnt * 8192;
-		//计算得到角度值，范围正负无穷大
-		v->ecd_angle =v->ecd_value*360/8192;
-		v->filter_rate =(msg->Data[2]<<8)|msg->Data[3];		
-}
 
