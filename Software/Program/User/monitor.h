@@ -3,14 +3,18 @@
 #include "stm32f4xx.h"
 
 
-
+typedef enum 
+{
+	online=1,
+	offline=2
+}status_t;
 
 typedef struct System_Monitor_t 
 {
 	int16_t count;
 	int16_t time;
+	status_t status;
 }System_Monitor_t;
-
 
 void Monitor_Init(void);
 void Monitor_Update(void);

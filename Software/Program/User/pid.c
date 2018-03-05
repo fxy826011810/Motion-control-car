@@ -1,9 +1,9 @@
 #include "stm32f4xx.h"
 #include "pid.h"
 
-PID_TypeDef CM1ArmSpeedPID 			= CMArmSpeedPID_default;//大臂
-PID_TypeDef CM2ArmSpeedPID 			= CMArmSpeedPID_default;//小臂
-PID_TypeDef CM1ArmPositionPID 	= CMArmPositionPID_default;
+PID_TypeDef CM1ArmSpeedPID 			= CMArmSpeedPID_default;		//大臂速度pid
+PID_TypeDef CM2ArmSpeedPID 			= CMArmSpeedPID_default;		//小臂速度pid
+PID_TypeDef CM1ArmPositionPID 	= CMArmPositionPID_default;	//大臂
 PID_TypeDef CM2ArmPositionPID 	= CMArmPositionPID_default;
 
 PID_TypeDef CMRotatePID = CMRotatePID_default;
@@ -47,13 +47,13 @@ enum
 
 void Pid_Test(PID_TypeDef* pid)
 {
-		pid->error[NOW] = pid->setdata - pid->realdata;
-		pid->Pout = pid->Kp*pid->error[NOW];
-		pid->Iout += pid->Ki*pid->error[NOW];
-		pid->Dout = pid->Kd*(pid->error[NOW] - pid->error[LAST]);
-		abs_limit(&(pid->Iout),pid->setimax);
-		pid->output = pid->Pout + pid->Iout + pid->Dout;
-		abs_limit(&(pid->output),pid->setomax);
-		pid->error[LAST] = pid->error[NOW];
+	pid->error[NOW] = pid->setdata - pid->realdata;
+	pid->Pout = pid->Kp*pid->error[NOW];
+	pid->Iout += pid->Ki*pid->error[NOW];
+	pid->Dout = pid->Kd*(pid->error[NOW] - pid->error[LAST]);
+	abs_limit(&(pid->Iout),pid->setimax);
+	pid->output = pid->Pout + pid->Iout + pid->Dout;
+	abs_limit(&(pid->output),pid->setomax);
+	pid->error[LAST] = pid->error[NOW];
 }
 

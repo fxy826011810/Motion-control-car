@@ -16,6 +16,7 @@ void Monitor_Reset(System_Monitor_t *mon)
 {
 	mon->count=0;
 	mon->time=0;
+	mon->status=offline;
 }
 //监视器初始化
 void Monitor_Init(void)
@@ -37,6 +38,14 @@ void Monitor_Calc(System_Monitor_t *mon)
 {
 	mon->count=mon->time;
 	mon->time=0;
+	if(mon->count==0)
+	{
+		mon->status=offline;
+	}
+	else
+	{
+		mon->status=online;
+	}
 }
 //设置监视器
 void Monitor_Set(System_Monitor_t *mon)

@@ -145,9 +145,9 @@ static void canGyroCalculate(CanRxMsg * rec)
 {
 	int16_t angleint[3];
 	float tempYaw;
-	angleint[2]=(rec->Data[1]<<8|rec->Data[2]);
-	angleint[1]=(rec->Data[3]<<8|rec->Data[4]);
-	angleint[0]=(rec->Data[5]<<8|rec->Data[6]);
+	angleint[2]=(rec->Data[0]<<8|rec->Data[1]);
+	angleint[1]=(rec->Data[2]<<8|rec->Data[3]);
+	angleint[0]=(rec->Data[4]<<8|rec->Data[5]);
 	Chassis.gyro.chassisAngle[2]=(float)angleint[2]/100;
 	Chassis.gyro.chassisAngle[1]=(float)angleint[1]/100;
 	tempYaw=(float)angleint[0]/100;
@@ -201,13 +201,13 @@ static void Can1_RecviveData(CanRxMsg * rec)//·µ»ØÖµ½âËã
 			switch (rec->StdId)
 			{
 //------------------------------------------------------------//
-				case CAN_RM3510_5_ID:
+				case CAN_RM3510_6_ID:
 				{
 					ArmEncoderProcess(MecArm.forearm.encoder,rec);
 					Monitor_Set(MecArm.forearm.mon);
 				}
 					break;				
-				case CAN_RM3510_6_ID:
+				case CAN_RM3510_5_ID:
 				{
 					ArmEncoderProcess(MecArm.mainArm.encoder,rec);
 					Monitor_Set(MecArm.mainArm.mon);

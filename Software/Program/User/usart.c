@@ -153,7 +153,7 @@ void angleRecCalculate(uint16_t temp)
 				Rec.motion.recAngle[1]=(float)angleint[1]/100;
 				tempYaw=(float)angleint[0]/100;
 				Rec.motion.yawCalc.in=&tempYaw;
-				Rec.motion.recAngle[0]=YawLineCalculate(&Chassis.gyro.yawCalc);
+				Rec.motion.recAngle[0]=YawLineCalculate(&Rec.motion.yawCalc);
 				Monitor_Set(Rec.motion.mon);
 			}
 		}
