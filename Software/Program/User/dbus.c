@@ -65,19 +65,7 @@ void dbus_getdata(DBUS_TypeDef *dbus)//Ò£¿ØÊý¾Ý½âËã
 		dbus->mouse.z = DBUS_BUFFER[10] | (int16_t)DBUS_BUFFER[11] << 8;
 		dbus->mouse.press_l = DBUS_BUFFER[12];
 		dbus->mouse.press_r = DBUS_BUFFER[13];
-		dbus->key.v = DBUS_BUFFER[14] | (int16_t)DBUS_BUFFER[15] << 8;
-		if(dbus->rc.s1==1)
-		{
-//			control_mode=remote;
-		}
-		else if(dbus->rc.s1==2)
-		{
-//			control_mode=stop;
-		}
-		else if(dbus->rc.s1==3)
-		{
-//			control_mode=keyboard;
-		}		
+		dbus->key.v = DBUS_BUFFER[14] | (int16_t)DBUS_BUFFER[15] << 8;	
 }
 
 

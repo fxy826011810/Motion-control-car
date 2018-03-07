@@ -5,6 +5,12 @@
 #include "pid.h"
 #include "can.h"
 #include "common.h"
+typedef enum
+{
+	ready=1,
+	wait=1,
+}dataStatus_t;//Êý¾Ý×´Ì¬
+
 typedef struct
 {
 	uint8_t id;
@@ -12,6 +18,7 @@ typedef struct
 	PID_TypeDef *positionPid;			//pid
 	PID_TypeDef *speedPid;				//pid
 	ArmEncoder *encoder;	//±àÂëÆ÷
+	dataStatus_t dataStatus;
 }moter_t;
 
 typedef struct
@@ -20,6 +27,10 @@ typedef struct
 	PID_TypeDef *pid;				//pid
 	YawCalculate_t yawCalc;
 	float chassisAngle[3];
+	float setAngle;
+	float remoteRotateAngle;
+	float motionRotateAngle;
+	dataStatus_t dataStatus;
 }gyro_t;
 
 typedef struct

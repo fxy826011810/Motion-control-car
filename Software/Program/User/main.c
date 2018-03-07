@@ -12,6 +12,7 @@ cmd_t cmd={0,&MecArm,&Chassis,&Rec,&Debug,prepare,noUse};
 
 void system_init(void)
 {
+	Debug_Init();
 	Monitor_Init();
 	Bsp_Pid_Init();
   Bsp_NVIC_Init();

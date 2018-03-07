@@ -10,8 +10,8 @@
 #include "usart.h"
 #include "dbus.h"
 #include "control.h"
-
-#define	LED_HEAT() GPIOC->ODR^=GPIO_Pin_1
+#include "debug.h"
+#define	LED_HEAT() GPIOC->ODR^=GPIO_Pin_1|GPIO_Pin_2
 #define LED1(x)	x ? GPIO_SetBits(GPIOC,GPIO_Pin_1):GPIO_ResetBits(GPIOC,GPIO_Pin_1)
 #define LED2(x)	x ? GPIO_SetBits(GPIOC,GPIO_Pin_2):GPIO_ResetBits(GPIOC,GPIO_Pin_2)
 

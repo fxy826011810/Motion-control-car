@@ -154,6 +154,12 @@ static void canGyroCalculate(CanRxMsg * rec)
 	Chassis.gyro.yawCalc.in=&tempYaw;
 	Chassis.gyro.chassisAngle[0]=YawLineCalculate(&Chassis.gyro.yawCalc);
 }
+static void moterDataProcess(moter_t *moter,CanRxMsg * rec)
+{
+	ArmEncoderProcess(moter->encoder,rec);
+	moter->dataStatus=ready;
+	Monitor_Set(moter->mon);
+}
 static void Can2_RecviveData(CanRxMsg * rec)//返回值解算
 {
 	
@@ -161,26 +167,22 @@ static void Can2_RecviveData(CanRxMsg * rec)//返回值解算
 			{
 				case CAN_RM3510_1_ID:
 				{
-					ArmEncoderProcess(Chassis.moter1.encoder,rec);
-					Monitor_Set(Chassis.moter1.mon);
+					moterDataProcess(&Chassis.moter1,rec);
 				}
 					break;
 				case CAN_RM3510_2_ID:
 				{
-					ArmEncoderProcess(Chassis.moter2.encoder,rec);
-					Monitor_Set(Chassis.moter2.mon);
+					moterDataProcess(&Chassis.moter2,rec);
 				}
 					break;
 				case CAN_RM3510_3_ID:
 				{
-					ArmEncoderProcess(Chassis.moter3.encoder,rec);
-					Monitor_Set(Chassis.moter3.mon);
+					moterDataProcess(&Chassis.moter3,rec);
 				}
 					break;
 				case CAN_RM3510_4_ID:
 				{
-					ArmEncoderProcess(Chassis.moter4.encoder,rec);
-					Monitor_Set(Chassis.moter4.mon);
+					moterDataProcess(&Chassis.moter4,rec);
 				}
 					break;
 //------------------------------------------------------------//				
@@ -203,14 +205,12 @@ static void Can1_RecviveData(CanRxMsg * rec)//返回值解算
 //------------------------------------------------------------//
 				case CAN_RM3510_6_ID:
 				{
-					ArmEncoderProcess(MecArm.forearm.encoder,rec);
-					Monitor_Set(MecArm.forearm.mon);
+					moterDataProcess(&MecArm.forearm,rec);
 				}
 					break;				
 				case CAN_RM3510_5_ID:
 				{
-					ArmEncoderProcess(MecArm.mainArm.encoder,rec);
-					Monitor_Set(MecArm.mainArm.mon);
+					moterDataProcess(&MecArm.mainArm,rec);
 				}
 					break;
 //------------------------------------------------------------//

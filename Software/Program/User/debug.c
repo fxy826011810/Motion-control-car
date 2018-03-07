@@ -70,8 +70,8 @@ void getFunctionTimeInit(void)
 //	function.Function=&AHRS_Update;										//初始化姿态更新
 //	memcpy(&AHRS_Update_t,&function,funSize);
 //	
-//	function.Function=&controlLoop;										//初始化系统主任务
-//	memcpy(&controlLoop_t,&function,funSize);
+	function.Function=&controlLoop;										//初始化系统主任务
+	memcpy(&controlLoop_t,&function,funSize);
 }
 
 

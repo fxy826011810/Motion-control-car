@@ -13,18 +13,17 @@
 
 //底盘赋初值
 chassis_t Chassis={\
-{0,&CanCm1_Monitor,NULL,&CM1SpeedPID,&CM1Encoder},\
-{1,&CanCm2_Monitor,NULL,&CM2SpeedPID,&CM2Encoder},\
-{2,&CanCm3_Monitor,NULL,&CM3SpeedPID,&CM3Encoder},\
-{3,&CanCm4_Monitor,NULL,&CM4SpeedPID,&CM4Encoder},\
-{&ChassisGyro_Monitor,&CMRotatePID,\
-{NULL,0,0,0,0},0.0f,0.0f,0.0f},\
+{0,&CanCm1_Monitor,NULL,&CM1SpeedPID,&CM1Encoder,wait},\
+{1,&CanCm2_Monitor,NULL,&CM2SpeedPID,&CM2Encoder,wait},\
+{2,&CanCm3_Monitor,NULL,&CM3SpeedPID,&CM3Encoder,wait},\
+{3,&CanCm4_Monitor,NULL,&CM4SpeedPID,&CM4Encoder,wait},\
+{&ChassisGyro_Monitor,&CMRotatePID,{NULL,0,0,0,0},{0.0f,0.0f,0.0f},0.0f,wait},\
 {0,0,0,{0,0,0,0}}\
 };
 //机械臂赋初值
 mecArm_t MecArm={\
-{6,&ForeArm_Monitor,&CM1ArmPositionPID,&CM1ArmSpeedPID,&CM1ArmEncoder},\
-{5,&MainArm_Monitor,&CM2ArmPositionPID,&CM2ArmSpeedPID,&CM2ArmEncoder}};
+{6,&ForeArm_Monitor,&CM1ArmPositionPID,&CM1ArmSpeedPID,&CM1ArmEncoder,wait},\
+{5,&MainArm_Monitor,&CM2ArmPositionPID,&CM2ArmSpeedPID,&CM2ArmEncoder,wait}};
 //接收赋初值
 Rec_t Rec={\
 {&IMURec_Monitor,{NULL,0,0,0,0},0.0f,0.0f,0.0f},\
@@ -67,11 +66,11 @@ void smoothFilter(float *i,float *o,float rate)
 void systemStatusChange(cmd_t *cmd)
 {
 	if((cmd->chassis->moter1.mon->status==offline)||
-		(cmd->chassis->moter1.mon->status==offline)||
-		(cmd->chassis->moter1.mon->status==offline)||
-		(cmd->chassis->moter1.mon->status==offline)||
-		(cmd->mecArm->forearm.mon->status==offline)||
-		(cmd->mecArm->mainArm.mon->status==offline))
+		 (cmd->chassis->moter1.mon->status==offline)||
+		 (cmd->chassis->moter1.mon->status==offline)||
+		 (cmd->chassis->moter1.mon->status==offline)||
+		 (cmd->mecArm->forearm.mon->status==offline)||
+		 (cmd->mecArm->mainArm.mon->status==offline))
 	{
 		cmd->systemStatus=stop;
 	}
@@ -106,6 +105,37 @@ void statusChange(cmd_t *cmd)
 {
 	systemStatusChange(cmd);
 	operateStatusChange(cmd);
+}
+
+void operateStatusExecute(cmd_t *cmd)//操作模式执行
+{
+	if(cmd->operateStatus==remote)
+	{
+		cmd->chassis->speed.Vy=cmd->rec->remote.dbusRec.rc.ch1;//前后
+		cmd->chassis->speed.Vx=cmd->rec->remote.dbusRec.rc.ch0;//左右
+//		cmd->chassis->speed.Omega=cmd->rec->remote.dbusRec.rc.ch2;//旋转
+		cmd->chassis->gyro.remoteRotateAngle+=cmd->rec->remote.dbusRec.rc.ch2*0.0003f;
+	}
+	else if(cmd->operateStatus==motion)
+	{
+//		=cmd->rec->motion.recAngle[0]*10;//yaw
+		cmd->chassis->speed.Vy=cmd->rec->motion.recAngle[1]*10;//pitch
+		cmd->chassis->speed.Vx=cmd->rec->motion.recAngle[2]*10;//roll
+		cmd->chassis->gyro.motionRotateAngle=cmd->rec->motion.recAngle[0];
+	}
+	else if(cmd->operateStatus==allUse)
+	{
+		cmd->chassis->speed.Vy=cmd->rec->remote.dbusRec.rc.ch1;//前后
+		cmd->chassis->speed.Vx=cmd->rec->remote.dbusRec.rc.ch0;//左右
+		cmd->chassis->gyro.motionRotateAngle=cmd->rec->motion.recAngle[0];
+	}
+	else if(cmd->operateStatus==noUse)
+	{
+		cmd->chassis->speed.Vy=0;//前后
+		cmd->chassis->speed.Vx=0;//左右
+		cmd->chassis->speed.Omega=0;//旋转
+	}
+	cmd->chassis->gyro.setAngle=cmd->chassis->gyro.motionRotateAngle+cmd->chassis->gyro.remoteRotateAngle;
 }
 void MecanumCalculate(float Vx, float Vy, float Omega, int16_t *Speed)
 {
@@ -150,9 +180,18 @@ float CmMoter_PidControlLoop(moter_t *moter,int16_t *setdata)
   moter->speedPid->test(moter->speedPid);											//速度PID计算
 	return moter->speedPid->output;
 }
+
+float ChassisRotate_PidControlLoop(gyro_t *gyro)
+{
+  gyro->pid->setdata		=gyro->setAngle;									//速度PID设定值
+  gyro->pid->realdata		=gyro->chassisAngle[0];	//速度PID实际值
+  gyro->pid->test(gyro->pid);											//速度PID计算
+	return gyro->pid->output;
+}
+
 void CMControlLoop(chassis_t *chassis)
 {
-	
+	chassis->speed.Omega=ChassisRotate_PidControlLoop(&chassis->gyro);
 	MecanumCalculate(chassis->speed.Vx,chassis->speed.Vy,chassis->speed.Omega,chassis->speed.moterSpeed);
 	
 	CM_senddata(CMCan,
@@ -165,8 +204,9 @@ void CMControlLoop(chassis_t *chassis)
 void controlLoop(void)
 {
 	cmd.heart++;
-	if(cmd.heart%1000==0)
+	if(cmd.heart%500==0)
 	{
+		LED_HEAT();
 		Monitor_Update();//监视器
 	}
 	if(cmd.heart==10000)
@@ -174,7 +214,7 @@ void controlLoop(void)
 		cmd.heart=0;
 	}
 	statusChange(&cmd);//状态检测
-	
+	operateStatusExecute(&cmd);
 	Arm_ControlLoop();//机械臂
 	CMControlLoop(cmd.chassis);//底盘
 }

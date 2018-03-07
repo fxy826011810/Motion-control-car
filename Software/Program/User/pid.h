@@ -45,11 +45,11 @@ __PID_EXT PID_TypeDef CM4SpeedPID ;
 			
 			#define CMSpeedPID_default \
 			{\
-			4.0f,\
+			5.0f,\
 			0.0f,\
 			10.0f,\
 			0,\
-			1000,\
+			3000,\
 			10000,\
 			0,\
 			0,\
@@ -97,7 +97,7 @@ __PID_EXT PID_TypeDef CM4SpeedPID ;
 
 			#define CMRotatePID_default \
 			{\
-			4.0f,\
+			30.0f,\
 			0.0f,\
 			10.0f,\
 			0,\

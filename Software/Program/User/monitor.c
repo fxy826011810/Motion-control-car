@@ -39,7 +39,7 @@ void Monitor_Reset(System_Monitor_t *mon,void (*cailback)(void))
 	mon->count=0;
 	mon->time=0;
 	mon->status=offline;
-	mon->cailback=&Monitor_Cailback;
+	mon->cailback=cailback;
 }
 //¼àÊÓÆ÷³õÊ¼»¯
 void Monitor_Init(void)
