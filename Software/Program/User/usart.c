@@ -121,6 +121,7 @@ typedef struct
 	uint8_t tmpLen;
 	uint8_t len;
 	uint8_t buf[30];
+	uint32_t failFrame;
 }FrameRec_t;
 FrameRec_t AngleRec={0xAA,0xBB,0,0.0};
 

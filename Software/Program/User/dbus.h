@@ -2,36 +2,6 @@
 #define __DBUS_H
 #include "stm32f4xx.h"
 #include "monitor.h"
-/* ----------------------- RC Channel Definition---------------------------- */
-#define RC_CH_VALUE_MIN	((uint16_t)364 )
-#define RC_CH_VALUE_OFFSET	((uint16_t)1024)
-#define RC_CH_VALUE_MAX	((uint16_t)1684)
-
-/* ----------------------- RC Switch Definition----------------------------- */
-#define RC_SW_UP	((uint16_t)1)
-#define RC_SW_MID	((uint16_t)3)
-#define RC_SW_DOWN	((uint16_t)2)
-
-/* ----------------------- PC Key Definition-------------------------------- */
-#define KEY_W	((uint16_t)0x01<<0)
-#define KEY_S	((uint16_t)0x01<<1)
-#define KEY_A	((uint16_t)0x01<<2)
-#define KEY_D	((uint16_t)0x01<<3)
-#define KEY_Q	((uint16_t)0x01<<4)
-#define KEY_E	((uint16_t)0x01<<5)
-#define KEY_SHIFT	((uint16_t)0x01<<6)
-#define KEY_CTRL	((uint16_t)0x01<<7)
-
-#define KEY_V		0x4000
-#define KEY_C		0x2000
-#define KEY_X		0x1000
-#define KEY_Z		0x0800
-#define KEY_G		0x0400
-#define KEY_F		0x0200
-#define KEY_R		0x0100
-/* ----------------------- Data Struct ------------------------------------- */
-extern uint8_t DBUS_BUFFER[19];
-
  typedef struct
 {
 	 struct
@@ -64,15 +34,6 @@ extern uint8_t DBUS_BUFFER[19];
 	DBUS_TypeDef dbusRec;
 }remote_t;
 
-typedef enum control_mode_t
-{
-	stop=0,
-	keyboard=1,
-	remote=3,
-	prepare=4,
-}control_mode_t;//¿ØÖÆÄ£Ê½
-extern control_mode_t control_mode;
-
 typedef struct ChassisSend_t
 {
 	float X;
@@ -87,7 +48,7 @@ typedef struct ChassisSend_t
 extern ChassisSend_t ChassisSend;
 
 
-extern DBUS_TypeDef DBUS;
+//extern DBUS_TypeDef DBUS;
 void dbus_reset(DBUS_TypeDef *dbus);
 void dbus_getdata(DBUS_TypeDef *dbus);
 void status_check(DBUS_TypeDef *dbus);

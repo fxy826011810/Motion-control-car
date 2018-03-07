@@ -4,13 +4,13 @@
 #include "pid.h"
 #include "main.h"
 #include "monitor.h"
-volatile ArmEncoder CM1ArmEncoder = {0,0,0,0,0,-4,0,0,0};
-volatile ArmEncoder CM2ArmEncoder = {0,0,0,0,0,4,0,0,0};
+ArmEncoder CM1ArmEncoder = {0,0,0,0,0,-4,0,0,0};
+ArmEncoder CM2ArmEncoder = {0,0,0,0,0,4,0,0,0};
 
-volatile CMEncoder CM1Encoder = {0,0,0,0,0,0,0,0};
-volatile CMEncoder CM2Encoder = {0,0,0,0,0,0,0,0};
-volatile CMEncoder CM3Encoder = {0,0,0,0,0,0,0,0};
-volatile CMEncoder CM4Encoder = {0,0,0,0,0,0,0,0};
+CMEncoder CM1Encoder = {0,0,0,0,0,0,0,0};
+CMEncoder CM2Encoder = {0,0,0,0,0,0,0,0};
+CMEncoder CM3Encoder = {0,0,0,0,0,0,0,0};
+CMEncoder CM4Encoder = {0,0,0,0,0,0,0,0};
 
 
 
@@ -120,7 +120,7 @@ void gm_senddata(CAN_TypeDef* CANx, int num1, int num2)//云台can发送
 		 CAN_Transmit(CANx, &sendmessage);
  }
  
-static void ArmEncoderProcess(volatile ArmEncoder *v, CanRxMsg * msg)//云台值解算函数
+static void ArmEncoderProcess(ArmEncoder *v, CanRxMsg * msg)//云台值解算函数
 { 
 		v->last_raw_value = v->raw_value;
 		v->raw_value = (msg->Data[0]<<8)|msg->Data[1];

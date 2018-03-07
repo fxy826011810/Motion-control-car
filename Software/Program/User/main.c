@@ -8,10 +8,11 @@
 #include "main.h"
 
 
-cmd_t cmd={0,&MecArm,&Chassis,&Rec,&Debug};
+cmd_t cmd={0,&MecArm,&Chassis,&Rec,&Debug,prepare};
 
 void system_init(void)
 {
+	Monitor_Init();
 	Bsp_Pid_Init();
   Bsp_NVIC_Init();
 	Bsp_GPIO_Init();
@@ -30,5 +31,4 @@ int main(void)
 	{	
 
   }
-  
 }

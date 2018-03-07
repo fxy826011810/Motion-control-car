@@ -7,10 +7,11 @@
 #include "common.h"
 typedef struct
 {
+	uint8_t id;
 	System_Monitor_t *mon;				//¼àÊÓÆ÷
 	PID_TypeDef *positionPid;			//pid
 	PID_TypeDef *speedPid;				//pid
-	volatile ArmEncoder *encoder;	//±àÂëÆ÷
+	ArmEncoder *encoder;	//±àÂëÆ÷
 }moter_t;
 
 typedef struct
@@ -23,11 +24,20 @@ typedef struct
 
 typedef struct
 {
+	int16_t Vx;
+	int16_t Vy;
+	int16_t Omega;
+	int16_t moterSpeed[4];
+}speed_t;
+
+typedef struct
+{
 	moter_t moter1;
 	moter_t moter2;
 	moter_t moter3;
 	moter_t moter4;
 	gyro_t	gyro;
+	speed_t speed;
 }chassis_t;
 
 typedef struct
@@ -36,7 +46,5 @@ typedef struct
 	moter_t mainArm;//´ó±Û
 }mecArm_t;
 
-void CMControlLoop(void);
-//void MecanumCalculate(float Vx, float Vy, float Omega, int16_t *Speed);
 void controlLoop(void);
 #endif

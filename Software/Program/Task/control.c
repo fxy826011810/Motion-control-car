@@ -13,17 +13,18 @@
 
 //底盘赋初值
 chassis_t Chassis={\
-{&CanCm1_Monitor,NULL,&CM1SpeedPID,&CM1Encoder},\
-{&CanCm2_Monitor,NULL,&CM2SpeedPID,&CM2Encoder},\
-{&CanCm3_Monitor,NULL,&CM3SpeedPID,&CM3Encoder},\
-{&CanCm4_Monitor,NULL,&CM4SpeedPID,&CM1Encoder},\
+{0,&CanCm1_Monitor,NULL,&CM1SpeedPID,&CM1Encoder},\
+{1,&CanCm2_Monitor,NULL,&CM2SpeedPID,&CM2Encoder},\
+{2,&CanCm3_Monitor,NULL,&CM3SpeedPID,&CM3Encoder},\
+{3,&CanCm4_Monitor,NULL,&CM4SpeedPID,&CM4Encoder},\
 {&ChassisGyro_Monitor,&CMRotatePID,\
-{NULL,0,0,0,0},0.0f,0.0f,0.0f}\
+{NULL,0,0,0,0},0.0f,0.0f,0.0f},\
+{0,0,0,{0,0,0,0}}\
 };
 //机械臂赋初值
 mecArm_t MecArm={\
-{&CanCm1_Monitor,&CM1ArmPositionPID,&CM1ArmSpeedPID,&CM1ArmEncoder},\
-{&CanCm2_Monitor,&CM1ArmPositionPID,&CM2ArmSpeedPID,&CM2ArmEncoder}};
+{6,&ForeArm_Monitor,&CM1ArmPositionPID,&CM1ArmSpeedPID,&CM1ArmEncoder},\
+{5,&MainArm_Monitor,&CM2ArmPositionPID,&CM2ArmSpeedPID,&CM2ArmEncoder}};
 //接收赋初值
 Rec_t Rec={\
 {&IMURec_Monitor,{NULL,0,0,0,0},0.0f,0.0f,0.0f},\
@@ -37,8 +38,8 @@ void ArmPidControlLoop(moter_t *moter,float SetData)
 	moter->positionPid->realdata = moter->encoder->ecd_angle;		//位置PID实际值
 	moter->positionPid->test(moter->positionPid);								//位置PID计算
 	
-	moter->speedPid->setdata = moter->positionPid->output;	//速度PID设定值
-	moter->speedPid->realdata	= moter->encoder->filter_rate;	//速度PID实际值
+	moter->speedPid->setdata = moter->positionPid->output;			//速度PID设定值
+	moter->speedPid->realdata	= moter->encoder->filter_rate;		//速度PID实际值
   moter->speedPid->test(moter->speedPid);											//速度PID计算
 }
 void ForeArm_ControlLoop(void)//前臂
@@ -54,7 +55,7 @@ void Arm_ControlLoop(void)
 {
 	ForeArm_ControlLoop();
 	MainArm_ControlLoop();
-	Arm_senddata(ArmCan,MecArm.forearm.speedPid->output,MecArm.mainArm.speedPid->output);
+//	Arm_senddata(ArmCan,MecArm.forearm.speedPid->output,MecArm.mainArm.speedPid->output);
 }	
 
 
@@ -104,21 +105,23 @@ void MecanumCalculate(float Vx, float Vy, float Omega, int16_t *Speed)
    Speed[3] = Buffer[3];
   }
 }
-void Chassis_PidControlLoop(PID_TypeDef *PositionPID , PID_TypeDef *SpeedPID , ArmEncoder *encoder)
+float Moter_PidControlLoop(moter_t *moter,int16_t *setdata)
 {
-	PositionPID->setdata	=0;											//位置PID设定值
-	PositionPID->realdata =encoder->ecd_angle;		//位置PID实际值
-  PositionPID->test(PositionPID);								//位置PID计算
-        
-  SpeedPID->setdata			= PositionPID->output;	//速度PID设定值
-  SpeedPID->realdata		=encoder->filter_rate;	//速度PID实际值
-  SpeedPID->test(SpeedPID);											//速度PID计算
+  moter->speedPid->setdata		= setdata[moter->id];									//速度PID设定值
+  moter->speedPid->realdata		=moter->encoder->filter_rate;	//速度PID实际值
+  moter->speedPid->test(moter->speedPid);											//速度PID计算
+	return moter->speedPid->output;
 }
-void CMControlLoop(void)
+void CMControlLoop(chassis_t *chassis)
 {
-//	Chassis.gyro.pid->setdata=0;
-//	Chassis.gyro.pid->realdata=Chassis.gyro.chassisAngle[0];
-//	CM_senddata(CAN2,1000,1000,1000,1000);
+	
+	MecanumCalculate(chassis->speed.Vx,chassis->speed.Vy,chassis->speed.Omega,chassis->speed.moterSpeed);
+	
+	CM_senddata(CMCan,
+	Moter_PidControlLoop(&chassis->moter1,chassis->speed.moterSpeed),
+	Moter_PidControlLoop(&chassis->moter2,chassis->speed.moterSpeed),
+	Moter_PidControlLoop(&chassis->moter3,chassis->speed.moterSpeed),
+	Moter_PidControlLoop(&chassis->moter4,chassis->speed.moterSpeed));
 }
 
 void controlLoop(void)
@@ -132,8 +135,8 @@ void controlLoop(void)
 	{
 		cmd.heart=0;
 	}
-//	Arm_ControlLoop();//机械臂
-	CMControlLoop();//底盘
+	Arm_ControlLoop();//机械臂
+	CMControlLoop(cmd.chassis);//底盘
 }
 
 

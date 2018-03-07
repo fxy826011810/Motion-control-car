@@ -21,6 +21,14 @@ typedef struct
 	remote_t remote;		//遥控
 }Rec_t;
 
+typedef enum
+{
+	stop=0,
+	motion=1,
+	remote=2,
+	allUse=3,
+	prepare=4,
+}systemStatus_t;
 
 typedef struct
 {
@@ -29,6 +37,7 @@ typedef struct
 	chassis_t *chassis;	//底盘
 	Rec_t *rec;					//接收
 	debug_t *debug;			//调试
+	systemStatus_t systemStatus;//系统状态
 }cmd_t;
 
 extern chassis_t Chassis;
