@@ -24,12 +24,17 @@ typedef struct
 typedef enum
 {
 	stop=0,
+	normal=1,
+	prepare=2,
+}systemStatus_t;
+
+typedef enum
+{
 	motion=1,
 	remote=2,
 	allUse=3,
-	prepare=4,
-}systemStatus_t;
-
+	noUse=4,
+}operateStatus_t;//操作
 typedef struct
 {
 	uint32_t heart;			//心跳
@@ -38,6 +43,7 @@ typedef struct
 	Rec_t *rec;					//接收
 	debug_t *debug;			//调试
 	systemStatus_t systemStatus;//系统状态
+	operateStatus_t operateStatus;//操作状态
 }cmd_t;
 
 extern chassis_t Chassis;

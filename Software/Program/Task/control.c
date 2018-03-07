@@ -64,11 +64,49 @@ void smoothFilter(float *i,float *o,float rate)
 	*o=(*o)*(1-rate)+(*i)*rate;
 }
 
-void systemStatus(void)
+void systemStatusChange(cmd_t *cmd)
 {
-
+	if((cmd->chassis->moter1.mon->status==offline)||
+		(cmd->chassis->moter1.mon->status==offline)||
+		(cmd->chassis->moter1.mon->status==offline)||
+		(cmd->chassis->moter1.mon->status==offline)||
+		(cmd->mecArm->forearm.mon->status==offline)||
+		(cmd->mecArm->mainArm.mon->status==offline))
+	{
+		cmd->systemStatus=stop;
+	}
+	else{
+		cmd->systemStatus=normal;
+	}
+}
+void operateStatusChange(cmd_t *cmd)
+{
+	if(cmd->systemStatus==normal)
+	{
+		if((cmd->rec->motion.mon->status!=offline)&&(cmd->rec->remote.mon->status!=offline))
+		{
+			cmd->operateStatus=allUse;
+		}
+		else if((cmd->rec->motion.mon->status==offline)&&(cmd->rec->remote.mon->status!=offline))
+		{
+			cmd->operateStatus=remote;
+		}
+		else if((cmd->rec->motion.mon->status!=offline)&&(cmd->rec->remote.mon->status==offline))
+		{
+			cmd->operateStatus=motion;
+		}
+		else if((cmd->rec->motion.mon->status==offline)&&(cmd->rec->remote.mon->status==offline))
+		{
+			cmd->operateStatus=noUse;
+		}
+	}
 }
 
+void statusChange(cmd_t *cmd)
+{
+	systemStatusChange(cmd);
+	operateStatusChange(cmd);
+}
 void MecanumCalculate(float Vx, float Vy, float Omega, int16_t *Speed)
 {
 	float Buffer[4], Param, MaxSpeed;
@@ -105,7 +143,7 @@ void MecanumCalculate(float Vx, float Vy, float Omega, int16_t *Speed)
    Speed[3] = Buffer[3];
   }
 }
-float Moter_PidControlLoop(moter_t *moter,int16_t *setdata)
+float CmMoter_PidControlLoop(moter_t *moter,int16_t *setdata)
 {
   moter->speedPid->setdata		= setdata[moter->id];									//速度PID设定值
   moter->speedPid->realdata		=moter->encoder->filter_rate;	//速度PID实际值
@@ -118,10 +156,10 @@ void CMControlLoop(chassis_t *chassis)
 	MecanumCalculate(chassis->speed.Vx,chassis->speed.Vy,chassis->speed.Omega,chassis->speed.moterSpeed);
 	
 	CM_senddata(CMCan,
-	Moter_PidControlLoop(&chassis->moter1,chassis->speed.moterSpeed),
-	Moter_PidControlLoop(&chassis->moter2,chassis->speed.moterSpeed),
-	Moter_PidControlLoop(&chassis->moter3,chassis->speed.moterSpeed),
-	Moter_PidControlLoop(&chassis->moter4,chassis->speed.moterSpeed));
+	CmMoter_PidControlLoop(&chassis->moter1,chassis->speed.moterSpeed),
+	CmMoter_PidControlLoop(&chassis->moter2,chassis->speed.moterSpeed),
+	CmMoter_PidControlLoop(&chassis->moter3,chassis->speed.moterSpeed),
+	CmMoter_PidControlLoop(&chassis->moter4,chassis->speed.moterSpeed));
 }
 
 void controlLoop(void)
@@ -135,6 +173,8 @@ void controlLoop(void)
 	{
 		cmd.heart=0;
 	}
+	statusChange(&cmd);//状态检测
+	
 	Arm_ControlLoop();//机械臂
 	CMControlLoop(cmd.chassis);//底盘
 }

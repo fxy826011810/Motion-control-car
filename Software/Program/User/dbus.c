@@ -47,6 +47,8 @@ void dbus_reset(DBUS_TypeDef *dbus)
 	dbus->rc.ch1=0;
 	dbus->rc.ch2=0;
 	dbus->rc.ch3=0;
+	dbus->rc.s1=0;
+	dbus->rc.s2=0;
 }
 
 void dbus_getdata(DBUS_TypeDef *dbus)//Ò£¿ØÊı¾İ½âËã

@@ -500,14 +500,14 @@
           <GroupName>Task</GroupName>
           <Files>
             <File>
+              <FileName>cailback.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Program\Task\cailback.c</FilePath>
+            </File>
+            <File>
               <FileName>control.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\Program\Task\control.c</FilePath>
-            </File>
-            <File>
-              <FileName>cailback.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\Program\User\cailback.c</FilePath>
             </File>
           </Files>
         </Group>

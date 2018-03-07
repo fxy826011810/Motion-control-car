@@ -14,7 +14,7 @@ typedef struct System_Monitor_t
 	int16_t count;
 	int16_t time;
 	moduleStatus_t status;
-	void (*cailback)();
+	void (*cailback)(void);
 }System_Monitor_t;
 
 void Monitor_Init(void);
