@@ -100,7 +100,7 @@ void USART1_IRQHandler(void)//½ÓÊÕÒ£¿ØÆ÷Öµ
 			if(Len==18)
 			{
 				__disable_irq();
-				dbus_getdata(&Rec.remote.dbusRec);
+				dbus_getdata(&Rec.remote);
 				__enable_irq();
 				Monitor_Set(Rec.remote.mon);
 				

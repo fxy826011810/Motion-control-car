@@ -35,79 +35,58 @@
 uint8_t DBUS_BUFFER[19];
 
 
-void dbus_reset(DBUS_TypeDef *dbus)
+void dbus_reset(remote_t *dbus)
 {
-	dbus->key.v=0;
-	dbus->mouse.press_l=0;
-	dbus->mouse.press_r=0;
-	dbus->mouse.x=0;
-	dbus->mouse.y=0;
-	dbus->mouse.z=0;
-	dbus->rc.ch0=0;
-	dbus->rc.ch1=0;
-	dbus->rc.ch2=0;
-	dbus->rc.ch3=0;
-	dbus->rc.s1=0;
-	dbus->rc.s2=0;
+	dbus->dbusRec.key.v=0;
+	dbus->dbusRec.mouse.press_l=0;
+	dbus->dbusRec.mouse.press_r=0;
+	dbus->dbusRec.mouse.x=0;
+	dbus->dbusRec.mouse.y=0;
+	dbus->dbusRec.mouse.z=0;
+	dbus->dbusRec.rc.ch0=0;
+	dbus->dbusRec.rc.ch1=0;
+	dbus->dbusRec.rc.ch2=0;
+	dbus->dbusRec.rc.ch3=0;
+	dbus->dbusRec.rc.s1=0;
+	dbus->dbusRec.rc.s2=0;
+	dbus->dataStatus=wait;
 }
 
-void dbus_getdata(DBUS_TypeDef *dbus)//遥控数据解算
-{				
-
-		dbus->rc.ch0=((DBUS_BUFFER[0]|(int16_t)DBUS_BUFFER[1]<<8)&0x07FF)-1024;
-		dbus->rc.ch1=((DBUS_BUFFER[1]>>3|(int16_t)DBUS_BUFFER[2]<<5)&0x07FF)-1024;
-		dbus->rc.ch2 =((DBUS_BUFFER[2]>>6|(int16_t)DBUS_BUFFER[3] << 2| DBUS_BUFFER[4]<<10) & 0x07FF)-1024;
-		dbus->rc.ch3 =((DBUS_BUFFER[4]>>1|(int16_t)DBUS_BUFFER[5] << 7) & 0x07FF)-1024;
-		dbus->rc.s1 = (DBUS_BUFFER[5] >> 4) & 0x03;
-		dbus->rc.s2 = (DBUS_BUFFER[5] >> 6) & 0x03;
-		dbus->mouse.x = DBUS_BUFFER[6] | (int16_t)DBUS_BUFFER[7] << 8;
-		dbus->mouse.y = DBUS_BUFFER[8] | (int16_t)DBUS_BUFFER[9] << 8;
-		dbus->mouse.z = DBUS_BUFFER[10] | (int16_t)DBUS_BUFFER[11] << 8;
-		dbus->mouse.press_l = DBUS_BUFFER[12];
-		dbus->mouse.press_r = DBUS_BUFFER[13];
-		dbus->key.v = DBUS_BUFFER[14] | (int16_t)DBUS_BUFFER[15] << 8;	
-}
-
-
-void status_check(DBUS_TypeDef *dbus)//检测控制模式
-{	
-//	switch (control_mode)
-//	{
-//		case prepare:
-//		break;
-//		case remote:
-////		remote_control(&DBUS);
-////		remote_s2_check(&DBUS);//摩擦轮的启动和关闭
-//		break;
-//		case keyboard:
-////		keyboard_control(&DBUS);
-////		keyboard_k_check(&DBUS);
-//		break;
-//		case stop:
-//		break;
-//	}
-	
-}
-
-
-void keyboard_k_check(DBUS_TypeDef *dbus)
+void dbus_getdata(remote_t *dbus)//遥控数据解算
 {
-
+		dbus->dbusRec.rc.ch0=((DBUS_BUFFER[0]|(int16_t)DBUS_BUFFER[1]<<8)&0x07FF)-1024;
+		dbus->dbusRec.rc.ch1=((DBUS_BUFFER[1]>>3|(int16_t)DBUS_BUFFER[2]<<5)&0x07FF)-1024;
+		dbus->dbusRec.rc.ch2 =((DBUS_BUFFER[2]>>6|(int16_t)DBUS_BUFFER[3] << 2| DBUS_BUFFER[4]<<10) & 0x07FF)-1024;
+		dbus->dbusRec.rc.ch3 =((DBUS_BUFFER[4]>>1|(int16_t)DBUS_BUFFER[5] << 7) & 0x07FF)-1024;
+		dbus->dbusRec.rc.s1 = (DBUS_BUFFER[5] >> 4) & 0x03;
+		dbus->dbusRec.rc.s2 = (DBUS_BUFFER[5] >> 6) & 0x03;
+		dbus->dbusRec.mouse.x = DBUS_BUFFER[6] | (int16_t)DBUS_BUFFER[7] << 8;
+		dbus->dbusRec.mouse.y = DBUS_BUFFER[8] | (int16_t)DBUS_BUFFER[9] << 8;
+		dbus->dbusRec.mouse.z = DBUS_BUFFER[10] | (int16_t)DBUS_BUFFER[11] << 8;
+		dbus->dbusRec.mouse.press_l = DBUS_BUFFER[12];
+		dbus->dbusRec.mouse.press_r = DBUS_BUFFER[13];
+		dbus->dbusRec.key.v = DBUS_BUFFER[14] | (int16_t)DBUS_BUFFER[15] << 8;
+		dbus->dataStatus=ready;	
 }
 
+//void keyboard_k_check(DBUS_TypeDef *dbus)
+//{
 
-void remote_s2_check(DBUS_TypeDef *dbus)
-{
-	
-}
+//}
 
 
-void keyboard_control(DBUS_TypeDef *dbus)//键盘控制
-{
+//void remote_s2_check(DBUS_TypeDef *dbus)
+//{
+//	
+//}
 
-}
 
-void remote_control(DBUS_TypeDef *dbus)//遥控控制
-{
+//void keyboard_control(DBUS_TypeDef *dbus)//键盘控制
+//{
 
-}
+//}
+
+//void remote_control(DBUS_TypeDef *dbus)//遥控控制
+//{
+
+//}

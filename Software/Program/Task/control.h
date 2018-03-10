@@ -3,13 +3,10 @@
 #include "stm32f4xx.h"
 #include "monitor.h"
 #include "pid.h"
-#include "can.h"
 #include "common.h"
-typedef enum
-{
-	ready=1,
-	wait=1,
-}dataStatus_t;//数据状态
+#include "can.h"
+
+
 
 typedef struct
 {
@@ -18,7 +15,6 @@ typedef struct
 	PID_TypeDef *positionPid;			//pid
 	PID_TypeDef *speedPid;				//pid
 	ArmEncoder *encoder;	//编码器
-	dataStatus_t dataStatus;
 }moter_t;
 
 typedef struct
@@ -27,6 +23,8 @@ typedef struct
 	PID_TypeDef *pid;				//pid
 	YawCalculate_t yawCalc;
 	float chassisAngle[3];
+	float chassisBiasAngle[3];
+	uint32_t count;
 	float setAngle;
 	float remoteRotateAngle;
 	float motionRotateAngle;
@@ -43,6 +41,7 @@ typedef struct
 
 typedef struct
 {
+	
 	moter_t moter1;
 	moter_t moter2;
 	moter_t moter3;
@@ -53,8 +52,10 @@ typedef struct
 
 typedef struct
 {
-	moter_t forearm;//前臂
+	moter_t foreArm;//前臂
 	moter_t mainArm;//大臂
+	float forearmSetAngle;//前臂设置角度
+	float mainArmSetAngle;//大臂设置角度
 }mecArm_t;
 
 void controlLoop(void);

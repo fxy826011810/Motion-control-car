@@ -4,13 +4,14 @@
 #include "pid.h"
 #include "main.h"
 #include "monitor.h"
-ArmEncoder CM1ArmEncoder = {0,0,0,0,0,-4,0,0,0};
-ArmEncoder CM2ArmEncoder = {0,0,0,0,0,4,0,0,0};
 
-CMEncoder CM1Encoder = {0,0,0,0,0,0,0,0};
-CMEncoder CM2Encoder = {0,0,0,0,0,0,0,0};
-CMEncoder CM3Encoder = {0,0,0,0,0,0,0,0};
-CMEncoder CM4Encoder = {0,0,0,0,0,0,0,0};
+ArmEncoder CM1ArmEncoder 	= {0,0,0,0,0,-4,0,0,0,0,wait};
+ArmEncoder CM2ArmEncoder 	= {0,0,0,0,0,4,0,0,0,0,wait};
+
+CMEncoder CM1Encoder 			= {0,0,0,0,0,0,0,0,0,wait};
+CMEncoder CM2Encoder 			= {0,0,0,0,0,0,0,0,0,wait};
+CMEncoder CM3Encoder 			= {0,0,0,0,0,0,0,0,0,wait};
+CMEncoder CM4Encoder 			= {0,0,0,0,0,0,0,0,0,wait};
 
 
 
@@ -120,7 +121,7 @@ void gm_senddata(CAN_TypeDef* CANx, int num1, int num2)//云台can发送
 		 CAN_Transmit(CANx, &sendmessage);
  }
  
-static void ArmEncoderProcess(ArmEncoder *v, CanRxMsg * msg)//云台值解算函数
+static void EncoderProcess(Encoder *v, CanRxMsg * msg)//云台值解算函数
 { 
 		v->last_raw_value = v->raw_value;
 		v->raw_value = (msg->Data[0]<<8)|msg->Data[1];
@@ -132,57 +133,86 @@ static void ArmEncoderProcess(ArmEncoder *v, CanRxMsg * msg)//云台值解算函数
 		else if(v->diff>7000)
 		{
 			v->round_cnt--;
-		}		
-
+		}
 		//计算得到连续的编码器输出值
 		v->ecd_value = v->raw_value-v->cnt_bias*8192- v->ecd_bias + v->round_cnt * 8192;
 		//计算得到角度值，范围正负无穷大
 		v->ecd_angle =v->ecd_value*360/8192;
-		v->filter_rate =(msg->Data[2]<<8)|msg->Data[3];		
+		v->filter_rate =(msg->Data[2]<<8)|msg->Data[3];
+		v->count++;
+		v->dataStatus=ready;
 }
-
-static void canGyroCalculate(CanRxMsg * rec)
+void GetEncoderBias(Encoder *v, CanRxMsg * msg)
+{
+	v->ecd_bias = (msg->Data[0]<<8)|msg->Data[1];  //保存初始编码器值作为偏差  
+	v->ecd_value = v->ecd_bias;
+	v->last_raw_value = v->ecd_bias;
+	v->count++;
+}
+static void canGyroCalculate(chassis_t *chassis,CanRxMsg * rec)
 {
 	int16_t angleint[3];
 	float tempYaw;
 	angleint[2]=(rec->Data[0]<<8|rec->Data[1]);
 	angleint[1]=(rec->Data[2]<<8|rec->Data[3]);
 	angleint[0]=(rec->Data[4]<<8|rec->Data[5]);
-	Chassis.gyro.chassisAngle[2]=(float)angleint[2]/100;
-	Chassis.gyro.chassisAngle[1]=(float)angleint[1]/100;
-	tempYaw=(float)angleint[0]/100;
-	Chassis.gyro.yawCalc.in=&tempYaw;
-	Chassis.gyro.chassisAngle[0]=YawLineCalculate(&Chassis.gyro.yawCalc);
+	
+	if(chassis->gyro.count<50)
+	{
+		chassis->gyro.chassisBiasAngle[2]=(float)angleint[2]/100;
+		chassis->gyro.chassisBiasAngle[1]=(float)angleint[1]/100;
+		tempYaw=(float)angleint[0]/100;
+		chassis->gyro.yawCalc.in=&tempYaw;
+		chassis->gyro.chassisBiasAngle[0]=YawLineCalculate(&chassis->gyro.yawCalc);
+		chassis->gyro.dataStatus=wait;
+	}
+	else
+	{
+		chassis->gyro.chassisAngle[2]=(float)angleint[2]/100;
+		chassis->gyro.chassisAngle[1]=(float)angleint[1]/100;
+		tempYaw=(float)angleint[0]/100;
+		chassis->gyro.yawCalc.in=&tempYaw;
+		chassis->gyro.chassisAngle[0]=YawLineCalculate(&chassis->gyro.yawCalc)-chassis->gyro.chassisBiasAngle[0];
+		chassis->gyro.dataStatus=ready;
+	}
+	chassis->gyro.count++;
 }
 static void moterDataProcess(moter_t *moter,CanRxMsg * rec)
 {
-	ArmEncoderProcess(moter->encoder,rec);
-	moter->dataStatus=ready;
-	Monitor_Set(moter->mon);
+	if(moter->encoder->count<50)
+	{
+		GetEncoderBias(moter->encoder,rec);
+	}
+	else
+	{
+		EncoderProcess(moter->encoder,rec);
+		Monitor_Set(moter->mon);
+	}
+	
 }
-static void Can2_RecviveData(CanRxMsg * rec)//返回值解算
+static void Can2_RecviveData(chassis_t *chassis,CanRxMsg * rec)//返回值解算
 {
 	
 			switch (rec->StdId)
 			{
 				case CAN_RM3510_1_ID:
 				{
-					moterDataProcess(&Chassis.moter1,rec);
+					moterDataProcess(&chassis->moter1,rec);
 				}
 					break;
 				case CAN_RM3510_2_ID:
 				{
-					moterDataProcess(&Chassis.moter2,rec);
+					moterDataProcess(&chassis->moter2,rec);
 				}
 					break;
 				case CAN_RM3510_3_ID:
 				{
-					moterDataProcess(&Chassis.moter3,rec);
+					moterDataProcess(&chassis->moter3,rec);
 				}
 					break;
 				case CAN_RM3510_4_ID:
 				{
-					moterDataProcess(&Chassis.moter4,rec);
+					moterDataProcess(&chassis->moter4,rec);
 				}
 					break;
 //------------------------------------------------------------//				
@@ -190,14 +220,14 @@ static void Can2_RecviveData(CanRxMsg * rec)//返回值解算
 				{
 					if(rec->Data[6]==0xAA&&rec->Data[7]==0xBB)
 					{
-						canGyroCalculate(rec);
-						Monitor_Set(Chassis.gyro.mon);
+						canGyroCalculate(chassis,rec);
+						Monitor_Set(chassis->gyro.mon);
 					}
 				}
 					break;				
 			}
 }
-static void Can1_RecviveData(CanRxMsg * rec)//返回值解算
+static void Can1_RecviveData(chassis_t *chassis,CanRxMsg * rec)//返回值解算
 {
 	
 			switch (rec->StdId)
@@ -205,7 +235,7 @@ static void Can1_RecviveData(CanRxMsg * rec)//返回值解算
 //------------------------------------------------------------//
 				case CAN_RM3510_6_ID:
 				{
-					moterDataProcess(&MecArm.forearm,rec);
+					moterDataProcess(&MecArm.foreArm,rec);
 				}
 					break;				
 				case CAN_RM3510_5_ID:
@@ -218,8 +248,8 @@ static void Can1_RecviveData(CanRxMsg * rec)//返回值解算
 				{
 					if(rec->Data[6]==0xAA&&rec->Data[7]==0xBB)
 					{
-						canGyroCalculate(rec);
-						Monitor_Set(Chassis.gyro.mon);
+						canGyroCalculate(chassis,rec);
+						Monitor_Set(chassis->gyro.mon);
 					}
 				}
 					break;
@@ -234,7 +264,7 @@ void CAN2_RX0_IRQHandler(void)//底盘云台值解算中断
 	{
 		CAN_ClearITPendingBit(CAN2, CAN_IT_FMP0);
 		CAN_Receive(CAN2, CAN_FIFO0, &receivemessage);
-		Can2_RecviveData(&receivemessage);
+		Can2_RecviveData(cmd.chassis,&receivemessage);
 	}
 }
 void CAN1_RX0_IRQHandler(void)//单轴陀螺仪值解算中断
@@ -244,7 +274,7 @@ void CAN1_RX0_IRQHandler(void)//单轴陀螺仪值解算中断
 	{
 		CAN_ClearITPendingBit(CAN1, CAN_IT_FMP0);
 		CAN_Receive(CAN1, CAN_FIFO0, &receivemessage);
-		Can1_RecviveData(&receivemessage);
+		Can1_RecviveData(cmd.chassis,&receivemessage);
 	}
 }
 

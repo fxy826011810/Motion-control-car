@@ -2,8 +2,8 @@
 #define __MAIN_H__
 
 #include "stm32f4xx.h"
+#include "common.h"
 #include "monitor.h"
-
 #include "config.h"
 #include "debug.h"
 #include "pid.h"
@@ -11,6 +11,7 @@
 #include "dbus.h"
 #include "control.h"
 #include "debug.h"
+
 #define	LED_HEAT() GPIOC->ODR^=GPIO_Pin_1|GPIO_Pin_2
 #define LED1(x)	x ? GPIO_SetBits(GPIOC,GPIO_Pin_1):GPIO_ResetBits(GPIOC,GPIO_Pin_1)
 #define LED2(x)	x ? GPIO_SetBits(GPIOC,GPIO_Pin_2):GPIO_ResetBits(GPIOC,GPIO_Pin_2)
@@ -19,22 +20,22 @@ typedef struct
 {
 	motion_t motion;		//手势
 	remote_t remote;		//遥控
-}Rec_t;
+}Rec_t;//接收
 
 typedef enum
 {
-	stop=0,
-	normal=1,
-	prepare=2,
-}systemStatus_t;
+	stop=0,//停止
+	normal=1,//正常
+	prepare=2,//准备
+}systemStatus_t;//系统状态
 
 typedef enum
 {
-	motion=1,
-	remote=2,
-	allUse=3,
-	noUse=4,
-}operateStatus_t;//操作
+	motion=1,//手势
+	remote=2,//遥控
+	allUse=3,//全部使用
+	noUse=4,//全不使用
+}operateStatus_t;//操作状态
 typedef struct
 {
 	uint32_t heart;			//心跳

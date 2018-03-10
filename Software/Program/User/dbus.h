@@ -2,6 +2,7 @@
 #define __DBUS_H
 #include "stm32f4xx.h"
 #include "monitor.h"
+#include "control.h"
  typedef struct
 {
 	 struct
@@ -31,30 +32,11 @@
  typedef struct
 {
 	System_Monitor_t *mon;//监视器
+	dataStatus_t dataStatus;
 	DBUS_TypeDef dbusRec;
 }remote_t;
 
-typedef struct ChassisSend_t
-{
-	float X;
-	float LAST_X;
-	float XMax;
-	float Y;
-	float LAST_Y;
-	float YMax;
-	float rotate;
-	float LAST_rotate;
-}ChassisSend_t;//底盘速度
-extern ChassisSend_t ChassisSend;
+void dbus_reset(remote_t *dbus);
+void dbus_getdata(remote_t *dbus);
 
-
-//extern DBUS_TypeDef DBUS;
-void dbus_reset(DBUS_TypeDef *dbus);
-void dbus_getdata(DBUS_TypeDef *dbus);
-void status_check(DBUS_TypeDef *dbus);
-void remote_s2_check(DBUS_TypeDef *dbus);
-void remote_s1_check(DBUS_TypeDef *dbus);
-void remote_control(DBUS_TypeDef *dbus);//遥控模式
-void keyboard_control(DBUS_TypeDef *dbus);//键盘模式
-void keyboard_k_check(DBUS_TypeDef *dbus);
 #endif

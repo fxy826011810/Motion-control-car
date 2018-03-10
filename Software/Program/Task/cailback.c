@@ -25,7 +25,7 @@ void IMURec_offlineCailback(void)//陀螺仪接收模块丢失回调
 
 void DbusRec_offlineCailback(void)//遥控丢失回调
 {
-	dbus_reset(&cmd.rec->remote.dbusRec);
+	dbus_reset(&cmd.rec->remote);
 }
 
 void ChassisGyro_offlineCailback(void)//底盘陀螺仪丢失回调
