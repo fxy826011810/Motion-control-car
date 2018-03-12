@@ -1,8 +1,6 @@
 #ifndef __CAILBACK_H__
 #define __CAILBACK_H__
 
-#include "stm32f4xx.h"
-
 void ForeArm_offlineCailback(void);
 
 void MainArm_offlineCailback(void);

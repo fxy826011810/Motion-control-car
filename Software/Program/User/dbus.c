@@ -68,25 +68,3 @@ void dbus_getdata(remote_t *dbus)//遥控数据解算
 		dbus->dbusRec.key.v = DBUS_BUFFER[14] | (int16_t)DBUS_BUFFER[15] << 8;
 		dbus->dataStatus=ready;	
 }
-
-//void keyboard_k_check(DBUS_TypeDef *dbus)
-//{
-
-//}
-
-
-//void remote_s2_check(DBUS_TypeDef *dbus)
-//{
-//	
-//}
-
-
-//void keyboard_control(DBUS_TypeDef *dbus)//键盘控制
-//{
-
-//}
-
-//void remote_control(DBUS_TypeDef *dbus)//遥控控制
-//{
-
-//}

@@ -115,15 +115,16 @@ void USART1_IRQHandler(void)//接收遥控器值
 
 typedef struct
 {
-	const uint8_t head;
-	const uint8_t end;
-	uint8_t lock;
-	uint8_t tmpLen;
-	uint8_t len;
-	uint8_t buf[30];
-	uint32_t failFrame;
+	const uint8_t head;//数据头
+	const uint8_t end;//数据尾
+	const uint8_t realLen;//数据长度
+	uint8_t lock;//接收锁
+	uint8_t tmpLen;//缓存长度
+	uint8_t len;//实际接收长度
+	uint8_t buf[30];//缓存
+	uint32_t failFrame;//误码帧数
 }FrameRec_t;
-FrameRec_t AngleRec={0xAA,0xBB,0,0.0};
+FrameRec_t AngleRec={0xAA,0xBB,8,0,0.0};
 
 
 void angleRecCalculate(uint16_t temp)
@@ -131,31 +132,40 @@ void angleRecCalculate(uint16_t temp)
 		__disable_irq();
 		if(temp==AngleRec.head)
 		{
-			AngleRec.lock=1;
+			AngleRec.lock=0;
 		}
-		if(AngleRec.lock==1)
+		if(AngleRec.lock==0)
 		{
 			AngleRec.buf[AngleRec.tmpLen++]=temp;
 		}
-		if(temp==AngleRec.end)
+		if(AngleRec.tmpLen==AngleRec.realLen)
 		{
-			AngleRec.lock=0;
-			AngleRec.len=AngleRec.tmpLen;
-			AngleRec.tmpLen=0;
-			if(AngleRec.buf[0]==AngleRec.head&&AngleRec.buf[7]==AngleRec.end)
+			if(temp==AngleRec.end)
 			{
-				int16_t angleint[3];
-				float tempYaw;
-				angleint[2]=(AngleRec.buf[1]<<8|AngleRec.buf[2]);
-				angleint[1]=(AngleRec.buf[3]<<8|AngleRec.buf[4]);
-				angleint[0]=(AngleRec.buf[5]<<8|AngleRec.buf[6]);
-							
-				Rec.motion.recAngle[2]=(float)angleint[2]/100;
-				Rec.motion.recAngle[1]=(float)angleint[1]/100;
-				tempYaw=(float)angleint[0]/100;
-				Rec.motion.yawCalc.in=&tempYaw;
-				Rec.motion.recAngle[0]=YawLineCalculate(&Rec.motion.yawCalc);
-				Monitor_Set(Rec.motion.mon);
+				AngleRec.lock=1;
+				AngleRec.len=AngleRec.tmpLen;
+				AngleRec.tmpLen=0;
+				if(AngleRec.buf[0]==AngleRec.head&&AngleRec.buf[7]==AngleRec.end)
+				{
+					int16_t angleint[3];
+					float tempYaw;
+					angleint[2]=(AngleRec.buf[1]<<8|AngleRec.buf[2]);
+					angleint[1]=(AngleRec.buf[3]<<8|AngleRec.buf[4]);
+					angleint[0]=(AngleRec.buf[5]<<8|AngleRec.buf[6]);
+								
+					Rec.motion.recAngle[2]=(float)angleint[2]/100;
+					Rec.motion.recAngle[1]=(float)angleint[1]/100;
+					tempYaw=(float)angleint[0]/100;
+					Rec.motion.yawCalc.in=&tempYaw;
+					Rec.motion.recAngle[0]=YawLineCalculate(&Rec.motion.yawCalc);
+					Monitor_Set(Rec.motion.mon);
+				}
+			}
+			else
+			{
+				AngleRec.lock=1;
+				AngleRec.tmpLen=0;
+				AngleRec.failFrame+=1;
 			}
 		}
 		__enable_irq();

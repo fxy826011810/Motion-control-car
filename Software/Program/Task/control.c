@@ -16,7 +16,7 @@ chassis_t Chassis={\
 {1,&CanCm2_Monitor,NULL,&CM2SpeedPID,&CM2Encoder},\
 {2,&CanCm3_Monitor,NULL,&CM3SpeedPID,&CM3Encoder},\
 {3,&CanCm4_Monitor,NULL,&CM4SpeedPID,&CM4Encoder},\
-{&ChassisGyro_Monitor,&CMRotatePID,{NULL,0,0,0,0},{0.0f,0.0f,0.0f},{0.0f,0.0f,0.0f},0,0.0f,wait},\
+{&ChassisGyro_Monitor,&CMRotatePID,{NULL,0,0,0,0,330},{0.0f,0.0f,0.0f},{0.0f,0.0f,0.0f},0,0.0f,wait},\
 {0,0,0,{0,0,0,0}}\
 };
 //机械臂赋初值
@@ -26,7 +26,7 @@ mecArm_t MecArm={\
 0.0f,0.0f};
 //接收赋初值
 Rec_t Rec={\
-{&IMURec_Monitor,{NULL,0,0,0,0},0.0f,0.0f,0.0f},\
+{&IMURec_Monitor,{NULL,0,0,0,0,330},0.0f,0.0f,0.0f},\
 {&DbusRec_Monitor,wait,0}\
 };
 
@@ -62,7 +62,7 @@ static void Arm_ControlLoop(void)
 {
 	ForeArm_ControlLoop();
 	MainArm_ControlLoop();
-	Arm_senddata(ArmCan,MecArm.foreArm.speedPid->output,MecArm.mainArm.speedPid->output);
+	Arm_senddata(ArmCan,MecArm.mainArm.speedPid->output,MecArm.foreArm.speedPid->output);
 }	
 
 
@@ -213,19 +213,33 @@ static void CMControlLoop(chassis_t *chassis)
 static void systemStatusChange(cmd_t *cmd)
 {
 	if((cmd->chassis->moter1.mon->status==offline)||
-		 (cmd->chassis->moter1.mon->status==offline)||
-		 (cmd->chassis->moter1.mon->status==offline)||
-		 (cmd->chassis->moter1.mon->status==offline)||
+		 (cmd->chassis->moter2.mon->status==offline)||
+		 (cmd->chassis->moter3.mon->status==offline)||
+		 (cmd->chassis->moter4.mon->status==offline)||
 		 (cmd->mecArm->foreArm.mon->status==offline)||
-		 (cmd->mecArm->mainArm.mon->status==offline))
+		 (cmd->mecArm->mainArm.mon->status==offline)||
+		 (cmd->chassis->gyro.mon->status==offline))
 	{
 		cmd->systemStatus=stop;
+		cmd->debug->offlineError|=(cmd->chassis->moter1.mon->status==offline);
+		cmd->debug->offlineError|=(cmd->chassis->moter2.mon->status==offline)<<1;
+		cmd->debug->offlineError|=(cmd->chassis->moter3.mon->status==offline)<<2;
+		cmd->debug->offlineError|=(cmd->chassis->moter4.mon->status==offline)<<3;
+		
+		cmd->debug->offlineError|=(cmd->mecArm->foreArm.mon->status==offline)<<4;
+		cmd->debug->offlineError|=(cmd->mecArm->mainArm.mon->status==offline)<<5;
+		
+		cmd->debug->offlineError|=(cmd->chassis->gyro.mon->status==offline)<<6;
 	}
 	else{
+		cmd->debug->offlineError=0;
 //------------------此处写准备阶段----------------------//
-		if(1)
-		
-//------------------此处写准备阶段----------------------//
+		if(cmd->chassis->moter1.encoder->count>100&&
+			 cmd->chassis->moter2.encoder->count>100&&
+			 cmd->chassis->moter3.encoder->count>100&&
+			 cmd->chassis->moter4.encoder->count>100&&
+			 cmd->mecArm->foreArm.encoder->count>100&&
+			 cmd->mecArm->mainArm.encoder->count>100)
 		{
 		cmd->systemStatus=normal;
 		}

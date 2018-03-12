@@ -50,6 +50,7 @@ void Monitor_Init(void)
 	Monitor_Reset(&CanCm2_Monitor, &CanCm_offlineCailback);
 	Monitor_Reset(&CanCm3_Monitor, &CanCm_offlineCailback);
 	Monitor_Reset(&CanCm4_Monitor, &CanCm_offlineCailback);
+	
 	Monitor_Reset(&IMURec_Monitor, &IMURec_offlineCailback);
 	Monitor_Reset(&DbusRec_Monitor,&DbusRec_offlineCailback);
 	Monitor_Reset(&ChassisGyro_Monitor,&ChassisGyro_offlineCailback);
@@ -74,6 +75,4 @@ void Monitor_Update(void)
 	Monitor_Calc(&DbusRec_Monitor);
 	Monitor_Calc(&ChassisGyro_Monitor);
 }
-
-
 

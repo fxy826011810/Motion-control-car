@@ -32,15 +32,7 @@ typedef struct{
 	uint32_t count;												//接收次数
 	dataStatus_t dataStatus;
 }Encoder;
-#define CMEncoder Encoder
-#define ArmEncoder Encoder
-extern ArmEncoder CM1ArmEncoder;
-extern ArmEncoder CM2ArmEncoder;
 
-extern CMEncoder CM1Encoder;
-extern CMEncoder CM2Encoder;
-extern CMEncoder CM3Encoder;
-extern CMEncoder CM4Encoder;
 
 void Bsp_Can_Init(void);
 void cm_senddata(CAN_TypeDef* CANx, int num1, int num2, int num3, int num4);
@@ -53,5 +45,16 @@ void gm_senddata(CAN_TypeDef* CANx, int num1, int num2);
 #define YawCan 	CAN2
 #define CMCan 	CAN2
 #define ArmCan 	CAN1
+
+#define CMEncoder Encoder
+#define ArmEncoder Encoder
+
+extern ArmEncoder CM1ArmEncoder;
+extern ArmEncoder CM2ArmEncoder;
+
+extern CMEncoder CM1Encoder;
+extern CMEncoder CM2Encoder;
+extern CMEncoder CM3Encoder;
+extern CMEncoder CM4Encoder;
 #endif
 

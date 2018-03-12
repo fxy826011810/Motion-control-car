@@ -25,6 +25,7 @@ typedef struct
 		Function_t *ahrs;
 		Function_t *controlLoop;
 	}functiontTime;
+	uint8_t offlineError;
 }debug_t;
 extern debug_t Debug;
 void Debug_Init(void);

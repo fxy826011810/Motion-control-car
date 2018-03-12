@@ -19,10 +19,15 @@ typedef enum
 
 typedef struct
 {
-	float *in,temp,lastTemp,out;
-	int count;
-}YawCalculate_t;
-float YawLineCalculate(YawCalculate_t *yaw);
+	float *in;			//输入
+	float temp;			//临时数值
+	float lastTemp;	//上次临时数值
+	float out;			//输出值
+	int count;			//圈数
+	const int limit;//最小跳变值
+}LineCalculate_t;
+#define YawLineCalculate LineCalculate
+float LineCalculate(LineCalculate_t *yaw);
 
 #endif
 

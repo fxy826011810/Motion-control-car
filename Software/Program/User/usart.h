@@ -5,7 +5,7 @@
 typedef struct
 {
 	System_Monitor_t *mon;//¼àÊÓÆ÷
-	YawCalculate_t yawCalc;
+	LineCalculate_t yawCalc;
 	float recAngle[3];
 }motion_t;
 

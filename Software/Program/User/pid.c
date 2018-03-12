@@ -1,8 +1,8 @@
 #include "stm32f4xx.h"
 #include "pid.h"
 
-PID_TypeDef CM1ArmSpeedPID 			= CMArmSpeedPID_default;		//大臂速度pid
-PID_TypeDef CM2ArmSpeedPID 			= CMArmSpeedPID_default;		//小臂速度pid
+PID_TypeDef CM1ArmSpeedPID 			= CMArmSpeedPID_default;		//小臂速度pid
+PID_TypeDef CM2ArmSpeedPID 			= CMArmSpeedPID_default;		//大臂速度pid
 PID_TypeDef CM1ArmPositionPID 	= CMArmPositionPID_default;	//大臂
 PID_TypeDef CM2ArmPositionPID 	= CMArmPositionPID_default;
 

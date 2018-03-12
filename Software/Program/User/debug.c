@@ -4,7 +4,7 @@
 #include "main.h"
 #include <string.h>
 
-debug_t Debug={{NULL,NULL,NULL,NULL,NULL}};
+debug_t Debug={{NULL,NULL,NULL,NULL,NULL},0};
 
 Function_t Ist8310_DataUpdate_t;
 Function_t ICM20602_DataUpdate_t;
@@ -25,7 +25,7 @@ void Debug_Init(void)
 //获取系统运行时间
 static uint32_t getFunctionTimeMicros(void)
 {
-				return TIM2->CNT;
+	return TIM2->CNT;
 }
 
 //结构体初始化

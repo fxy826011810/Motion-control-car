@@ -5,8 +5,8 @@
 #include "main.h"
 #include "monitor.h"
 
-ArmEncoder CM1ArmEncoder 	= {0,0,0,0,0,-4,0,0,0,0,wait};
-ArmEncoder CM2ArmEncoder 	= {0,0,0,0,0,4,0,0,0,0,wait};
+ArmEncoder CM1ArmEncoder 	= {0,0,0,0,0,0,0,0,0,0,wait};
+ArmEncoder CM2ArmEncoder 	= {0,0,0,0,0,0,0,0,0,0,wait};
 
 CMEncoder CM1Encoder 			= {0,0,0,0,0,0,0,0,0,wait};
 CMEncoder CM2Encoder 			= {0,0,0,0,0,0,0,0,0,wait};
@@ -267,7 +267,7 @@ void CAN2_RX0_IRQHandler(void)//底盘云台值解算中断
 		Can2_RecviveData(cmd.chassis,&receivemessage);
 	}
 }
-void CAN1_RX0_IRQHandler(void)//单轴陀螺仪值解算中断
+void CAN1_RX0_IRQHandler(void)//机械臂值解算中断
 {
 	CanRxMsg		receivemessage;
 	if (CAN_GetITStatus(CAN1, CAN_IT_FMP0) != 0)
