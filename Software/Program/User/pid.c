@@ -1,6 +1,6 @@
 #include "stm32f4xx.h"
 #include "pid.h"
-
+#include "common.h"
 PID_TypeDef CM1ArmSpeedPID 			= CMArmSpeedPID_default;		//小臂速度pid
 PID_TypeDef CM2ArmSpeedPID 			= CMArmSpeedPID_default;		//大臂速度pid
 PID_TypeDef CM1ArmPositionPID 	= CMArmPositionPID_default;	//大臂
@@ -12,13 +12,7 @@ PID_TypeDef CM2SpeedPID = CMSpeedPID_default;
 PID_TypeDef CM3SpeedPID = CMSpeedPID_default;
 PID_TypeDef CM4SpeedPID = CMSpeedPID_default;
 
-void abs_limit(float *a, float ABS_MAX)
-{
-	if (*a > ABS_MAX)
-		*a = ABS_MAX;
-	if (*a < -ABS_MAX)
-		*a = -ABS_MAX;
-}
+
 
 void  Pid_Reset(PID_TypeDef* pid)
 {
@@ -51,9 +45,9 @@ void Pid_Test(PID_TypeDef* pid)
 	pid->Pout = pid->Kp*pid->error[NOW];
 	pid->Iout += pid->Ki*pid->error[NOW];
 	pid->Dout = pid->Kd*(pid->error[NOW] - pid->error[LAST]);
-	abs_limit(&(pid->Iout),pid->setimax);
+	abs_float_limit(&(pid->Iout),pid->setimax);
 	pid->output = pid->Pout + pid->Iout + pid->Dout;
-	abs_limit(&(pid->output),pid->setomax);
+	abs_float_limit(&(pid->output),pid->setomax);
 	pid->error[LAST] = pid->error[NOW];
 }
 

@@ -28,6 +28,7 @@ typedef struct
 }LineCalculate_t;
 #define YawLineCalculate LineCalculate
 float LineCalculate(LineCalculate_t *yaw);
-
+void abs_int16_t_limit(int16_t *a, int16_t ABS_MAX);
+void abs_float_limit(float *a, float ABS_MAX);
 #endif
 

@@ -110,9 +110,18 @@ static void operateStatusExecute(cmd_t *cmd)//操作模式执行
 		if(Rec.remote.dataStatus==ready)
 		{
 			Rec.remote.dataStatus=wait;
+			if(Rec.remote.dbusRec.rc.s1==1)
+			{
 			cmd->chassis->speed.Vy=cmd->rec->remote.dbusRec.rc.ch1*3;//前后
 			cmd->chassis->speed.Vx=cmd->rec->remote.dbusRec.rc.ch0*3;//左右
 			cmd->chassis->gyro.remoteRotateAngle+=(float)cmd->rec->remote.dbusRec.rc.ch2*5.0f/cmd->rec->remote.mon->count/330;//遥控角度
+			}else if(Rec.remote.dbusRec.rc.s1==3)
+			{
+				cmd->mecArm->forearmSetAngle+=(float)cmd->rec->remote.dbusRec.rc.ch1*0.001f;
+				cmd->mecArm->mainArmSetAngle+=(float)cmd->rec->remote.dbusRec.rc.ch3*0.001f;
+				abs_float_limit(&cmd->mecArm->forearmSetAngle,660.0f);
+				abs_float_limit(&cmd->mecArm->mainArmSetAngle,660.0f);
+			}
 			status=ENABLE;
 		}
 	}

@@ -118,7 +118,7 @@
         <SetRegEntry>
           <Number>0</Number>
           <Key>DLGUARM</Key>
-          <Name>楢?P鮮w楢?</Name>
+          <Name>堭O</Name>
         </SetRegEntry>
         <SetRegEntry>
           <Number>0</Number>
@@ -601,7 +601,7 @@
       <GroupNumber>5</GroupNumber>
       <FileNumber>30</FileNumber>
       <FileType>1</FileType>
-      <tvExp>0</tvExp>
+      <tvExp>1</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
       <PathWithFileName>..\Program\User\common.c</PathWithFileName>
