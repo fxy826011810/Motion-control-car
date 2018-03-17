@@ -55,7 +55,9 @@ typedef struct
 	moter_t foreArm;						//前臂
 	moter_t mainArm;						//大臂
 	float forearmSetAngle;			//前臂设置角度
+	float forearmRealAngle;			//前臂设置角度
 	float mainArmSetAngle;			//大臂设置角度
+	float mainArmRealAngle;			//大臂设置角度
 }mecArm_t;
 
 void controlLoop(void);

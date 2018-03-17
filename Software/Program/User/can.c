@@ -5,8 +5,8 @@
 #include "main.h"
 #include "monitor.h"
 
-ArmEncoder CM1ArmEncoder 	= {0,0,0,0,0,0,0,0,0,0,wait};
-ArmEncoder CM2ArmEncoder 	= {0,0,0,0,0,0,0,0,0,0,wait};
+ArmEncoder ForeArmEncoder 	= {0,0,0,0,0,0,-4*8192,0,0,0,0,wait};
+ArmEncoder MainArmEncoder 	= {0,0,0,0,0,0,4*8192,0,0,0,0,wait};
 
 CMEncoder CM1Encoder 			= {0,0,0,0,0,0,0,0,0,wait};
 CMEncoder CM2Encoder 			= {0,0,0,0,0,0,0,0,0,wait};
@@ -135,7 +135,7 @@ static void EncoderProcess(Encoder *v, CanRxMsg * msg)//云台值解算函数
 			v->round_cnt--;
 		}
 		//计算得到连续的编码器输出值
-		v->ecd_value = v->raw_value-v->cnt_bias*8192- v->ecd_bias + v->round_cnt * 8192;
+		v->ecd_value = v->raw_value-v->zero_bias-(int32_t)v->ecd_bias + v->round_cnt * 8192;
 		//计算得到角度值，范围正负无穷大
 		v->ecd_angle =v->ecd_value*360/8192;
 		v->filter_rate =(msg->Data[2]<<8)|msg->Data[3];
@@ -144,9 +144,9 @@ static void EncoderProcess(Encoder *v, CanRxMsg * msg)//云台值解算函数
 }
 void GetEncoderBias(Encoder *v, CanRxMsg * msg)
 {
-	v->ecd_bias = (msg->Data[0]<<8)|msg->Data[1];  //保存初始编码器值作为偏差  
-	v->ecd_value = v->ecd_bias;
-	v->last_raw_value = v->ecd_bias;
+	v->zero_bias = (msg->Data[0]<<8)|msg->Data[1];  //保存初始编码器值作为偏差  
+	v->ecd_value = v->zero_bias;
+	v->last_raw_value = v->zero_bias;
 	v->count++;
 }
 static void canGyroCalculate(chassis_t *chassis,CanRxMsg * rec)

@@ -24,8 +24,9 @@ typedef struct{
 	int32_t last_raw_value;								//上一次的编码器原始值
 	int32_t ecd_value;                    //经过处理后连续的编码器值
 	int32_t diff;													//两次编码器之间的差值
-	int32_t ecd_bias;											//初始编码器值	
-	int32_t cnt_bias;											//圈数初始值
+	int32_t zero_bias;
+	float ecd_bias;											//初始编码器值	
+	float cnt_bias;											//圈数初始值
 	int32_t round_cnt;										//圈数
 	int16_t filter_rate;									//速度
 	float ecd_angle;											//角度
@@ -49,8 +50,8 @@ void gm_senddata(CAN_TypeDef* CANx, int num1, int num2);
 #define CMEncoder Encoder
 #define ArmEncoder Encoder
 
-extern ArmEncoder CM1ArmEncoder;
-extern ArmEncoder CM2ArmEncoder;
+extern ArmEncoder ForeArmEncoder;
+extern ArmEncoder MainArmEncoder;
 
 extern CMEncoder CM1Encoder;
 extern CMEncoder CM2Encoder;

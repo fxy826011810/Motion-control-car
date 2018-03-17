@@ -21,9 +21,9 @@ chassis_t Chassis={\
 };
 //机械臂赋初值
 mecArm_t MecArm={\
-{6,&ForeArm_Monitor,&CM1ArmPositionPID,&CM1ArmSpeedPID,&CM1ArmEncoder},\
-{5,&MainArm_Monitor,&CM2ArmPositionPID,&CM2ArmSpeedPID,&CM2ArmEncoder},\
-0.0f,0.0f};
+{6,&ForeArm_Monitor,&CM1ArmPositionPID,&CM1ArmSpeedPID,&ForeArmEncoder},\
+{5,&MainArm_Monitor,&CM2ArmPositionPID,&CM2ArmSpeedPID,&MainArmEncoder},\
+0.0f,0.0f,0.0f,0.0f};
 //接收赋初值
 Rec_t Rec={\
 {&IMURec_Monitor,{NULL,0,0,0,0,330},0.0f,0.0f,0.0f},\
@@ -68,7 +68,8 @@ static void Arm_ControlLoop(void)
 
 void smoothFilter(float *i,float *o,float rate)
 {
-	*o=(*o)*(1-rate)+(*i)*rate;
+//	*o=((*o)*(1-rate)+(*i)*rate);
+	*o=(*o)+(*i)*rate;
 }
 static float ChassisRotate_PidControlLoop(gyro_t *gyro)
 {
@@ -105,6 +106,9 @@ static void operateStatusChange(cmd_t *cmd)
 static void operateStatusExecute(cmd_t *cmd)//操作模式执行
 {
 	FunctionalState status=DISABLE;
+	{
+	
+	}
 	if(cmd->operateStatus==remote)
 	{
 		if(Rec.remote.dataStatus==ready)
@@ -239,31 +243,52 @@ static void systemStatusChange(cmd_t *cmd)
 		cmd->debug->offlineError|=(cmd->mecArm->mainArm.mon->status==offline)<<5;
 		
 		cmd->debug->offlineError|=(cmd->chassis->gyro.mon->status==offline)<<6;
+		
 	}
-	else{
+	else
+	{
 		cmd->debug->offlineError=0;
-//------------------此处写准备阶段----------------------//
-		if(cmd->chassis->moter1.encoder->count>100&&
-			 cmd->chassis->moter2.encoder->count>100&&
-			 cmd->chassis->moter3.encoder->count>100&&
-			 cmd->chassis->moter4.encoder->count>100&&
-			 cmd->mecArm->foreArm.encoder->count>100&&
-			 cmd->mecArm->mainArm.encoder->count>100)
-		{
-		cmd->systemStatus=normal;
-		}
+
+	//------------------此处写准备阶段----------------------//
+			if(cmd->chassis->moter1.encoder->count>100&&
+				 cmd->chassis->moter2.encoder->count>100&&
+				 cmd->chassis->moter3.encoder->count>100&&
+				 cmd->chassis->moter4.encoder->count>100&&
+				 cmd->mecArm->foreArm.encoder->count>100&&
+				 cmd->mecArm->mainArm.encoder->count>100
+				)
+			{
+				if(__fabs(cmd->mecArm->foreArm.encoder->ecd_bias-cmd->mecArm->foreArm.encoder->cnt_bias)<10&&
+				__fabs(cmd->mecArm->mainArm.encoder->ecd_bias-cmd->mecArm->mainArm.encoder->cnt_bias)<10)
+				{
+					cmd->systemStatus=normal;
+				}
+				else
+				{
+					cmd->systemStatus=prepare;
+				}
+			}
+		
 	}
 }
 static void systemStatusExecute(cmd_t *cmd)//系统模式执行
 {
-		if(cmd->systemStatus==prepare)
+	if(cmd->systemStatus!=stop)
 	{
-		
-	}
-	if(cmd->systemStatus==normal)
-	{
-		operateStatusChange(cmd);//检测操作状态
-		operateStatusExecute(cmd);//按操作状态执行
+			if(cmd->systemStatus==prepare)
+		{
+			if(__fabs(cmd->mecArm->mainArm.encoder->ecd_bias-cmd->mecArm->mainArm.encoder->cnt_bias)<(cmd->mecArm->mainArm.encoder->cnt_bias/2))
+			smoothFilter(&cmd->mecArm->foreArm.encoder->cnt_bias,&cmd->mecArm->foreArm.encoder->ecd_bias,0.001);
+			
+			smoothFilter(&cmd->mecArm->mainArm.encoder->cnt_bias,&cmd->mecArm->mainArm.encoder->ecd_bias,0.001);
+		}
+		if(cmd->systemStatus==normal)
+		{
+			cmd->mecArm->foreArm.encoder->ecd_bias=cmd->mecArm->foreArm.encoder->cnt_bias;
+			cmd->mecArm->mainArm.encoder->ecd_bias=cmd->mecArm->mainArm.encoder->cnt_bias;
+			operateStatusChange(cmd);//检测操作状态
+			operateStatusExecute(cmd);//按操作状态执行
+		}
 		Arm_ControlLoop();//机械臂
 		CMControlLoop(cmd->chassis);//底盘
 	}
@@ -283,9 +308,6 @@ void controlLoop(void)
 	systemStatusChange(&cmd);//检测系统状态
 	systemStatusExecute(&cmd);//按系统状态执行
 }
-
-
-
 
 
 

@@ -118,7 +118,7 @@
         <SetRegEntry>
           <Number>0</Number>
           <Key>DLGUARM</Key>
-          <Name>堭O</Name>
+          <Name>報?</Name>
         </SetRegEntry>
         <SetRegEntry>
           <Number>0</Number>
@@ -160,6 +160,21 @@
         </Ww>
         <Ww>
           <count>2</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>MecArm</ItemText>
+        </Ww>
+        <Ww>
+          <count>3</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>ForeArmEncoder</ItemText>
+        </Ww>
+        <Ww>
+          <count>4</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>MainArmEncoder</ItemText>
+        </Ww>
+        <Ww>
+          <count>5</count>
           <WinNumber>1</WinNumber>
           <ItemText>MecArm</ItemText>
         </Ww>
@@ -601,7 +616,7 @@
       <GroupNumber>5</GroupNumber>
       <FileNumber>30</FileNumber>
       <FileType>1</FileType>
-      <tvExp>1</tvExp>
+      <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
       <PathWithFileName>..\Program\User\common.c</PathWithFileName>
